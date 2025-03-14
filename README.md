@@ -12,7 +12,7 @@ A Go package that provides utilities for reading and writing binary data in both
 ## Installation
 
 ```bash
-go get github.com/yourusername/endianio
+go get github.com/noselasd/endianio
 ```
 
 ## Usage
@@ -27,7 +27,7 @@ import (
     "fmt"
     "log"
 
-    "github.com/yourusername/endianio"
+    "github.com/noselasd/endianio"
 )
 
 func main() {
@@ -75,7 +75,7 @@ import (
     "bytes"
     "fmt"
 
-    "github.com/yourusername/endianio"
+    "github.com/noselasd/endianio"
 )
 
 func main() {
