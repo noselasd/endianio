@@ -3,6 +3,7 @@ package endianio
 import (
 	"bytes"
 	"encoding/binary"
+	"math"
 	"testing"
 )
 
@@ -96,12 +97,12 @@ func TestWriter_WriteBig(t *testing.T) {
 				w := NewWriter(buf)
 				_, err := w.WriteBigUint32(tt.value)
 				if err != nil {
-					t.Errorf("WriteBigUint32() error = %v", err)
+					t.Errorf("WriteLittleUint32() error = %v", err)
 					return
 				}
 				got := buf.Bytes()
 				if !bytes.Equal(got, tt.want) {
-					t.Errorf("WriteBigUint32() got = %v, want %v", got, tt.want)
+					t.Errorf("WriteLittleUint32() got = %v, want %v", got, tt.want)
 				}
 			})
 		}
@@ -127,6 +128,63 @@ func TestWriter_WriteBig(t *testing.T) {
 				buf := &bytes.Buffer{}
 				w := NewWriter(buf)
 				_, err := w.WriteBigUint64(tt.value)
+				if err != nil {
+					t.Errorf("WriteBigUint64() error = %v", err)
+					return
+				}
+				got := buf.Bytes()
+				if !bytes.Equal(got, tt.want) {
+					t.Errorf("WriteBigUint64() got = %v, want %v", got, tt.want)
+				}
+			})
+		}
+	})
+	t.Run("WriteBigFloat32", func(t *testing.T) {
+		var tests = []struct {
+			name  string
+			value float32
+			want  []byte
+		}{
+			{"float32_1", 0.0, []byte{0x00, 0x00, 0x00, 0x00}},
+			{"float32_2", 0.1, []byte{0x3d, 0xcc, 0xcc, 0xcd}},
+			{"float32_3", -0.1, []byte{0xbd, 0xcc, 0xcc, 0xcd}},
+			{"float32_4", float32(math.Inf(-1)), []byte{0xff, 0x80, 0x00, 0x00}},
+			{"float32_5", float32(math.NaN()), []byte{0x7f, 0xc0, 0x00, 0x00}},
+		}
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				buf := &bytes.Buffer{}
+				w := NewWriter(buf)
+				_, err := w.WriteBigFloat32(tt.value)
+				if err != nil {
+					t.Errorf("WriteBigUint64() error = %v", err)
+					return
+				}
+				got := buf.Bytes()
+				if !bytes.Equal(got, tt.want) {
+					t.Errorf("WriteBigUint64() got = %v, want %v", got, tt.want)
+				}
+			})
+		}
+	})
+	// Test WriteBigUint64
+	t.Run("WriteBigFloat64", func(t *testing.T) {
+		var tests = []struct {
+			name  string
+			value float64
+			want  []byte
+		}{
+			{"float64_1", 0.0, []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
+			{"float64_2", 0.1, []byte{0x3f, 0xb9, 0x99, 0x99, 0x99, 0x99, 0x99, 0x9a}},
+			{"float64_3", -0.1, []byte{0xbf, 0xb9, 0x99, 0x99, 0x99, 0x99, 0x99, 0x9a}},
+			{"float64_4", math.Inf(-1), []byte{0xff, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
+			{"float64_5", math.NaN(), []byte{0x7f, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01}},
+		}
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				buf := &bytes.Buffer{}
+				w := NewWriter(buf)
+				_, err := w.WriteBigFloat64(tt.value)
 				if err != nil {
 					t.Errorf("WriteBigUint64() error = %v", err)
 					return
@@ -266,6 +324,63 @@ func TestWriter_WriteLittle(t *testing.T) {
 				}
 				if !bytes.Equal(buf.Bytes(), tt.want) {
 					t.Errorf("WriteLittleUint64() got = %v, want %v", buf.Bytes(), tt.want)
+				}
+			})
+		}
+	})
+	t.Run("WriteLittleFloat32", func(t *testing.T) {
+		var tests = []struct {
+			name  string
+			value float32
+			want  []byte
+		}{
+			{"float32_1", 0.0, []byte{0x00, 0x00, 0x00, 0x00}},
+			{"float32_2", 0.1, []byte{0xcd, 0xcc, 0xcc, 0x3d}},
+			{"float32_3", -0.1, []byte{0xcd, 0xcc, 0xcc, 0xbd}},
+			{"float32_4", float32(math.Inf(-1)), []byte{0x00, 0x00, 0x80, 0xff}},
+			{"float32_5", float32(math.NaN()), []byte{0x00, 0x00, 0xc0, 0x7f}},
+		}
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				buf := &bytes.Buffer{}
+				w := NewWriter(buf)
+				_, err := w.WriteLittleFloat32(tt.value)
+				if err != nil {
+					t.Errorf("WriteLittleUint32() error = %v", err)
+					return
+				}
+				got := buf.Bytes()
+				if !bytes.Equal(got, tt.want) {
+					t.Errorf("WriteLittleUint32() got = %v, want %v", got, tt.want)
+				}
+			})
+		}
+	})
+	// Test WriteBigUint64
+	t.Run("WriteLittleFloat64", func(t *testing.T) {
+		var tests = []struct {
+			name  string
+			value float64
+			want  []byte
+		}{
+			{"float64_1", 0.0, []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}},
+			{"float64_2", 0.1, []byte{0x9a, 0x99, 0x99, 0x99, 0x99, 0x99, 0xb9, 0x3f}},
+			{"float64_3", -0.1, []byte{0x9a, 0x99, 0x99, 0x99, 0x99, 0x99, 0xb9, 0xbf}},
+			{"float64_4", math.Inf(-1), []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0xff}},
+			{"float64_5", math.NaN(), []byte{0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf8, 0x7f}},
+		}
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				buf := &bytes.Buffer{}
+				w := NewWriter(buf)
+				_, err := w.WriteLittleFloat64(tt.value)
+				if err != nil {
+					t.Errorf("WriteLittleUint64() error = %v", err)
+					return
+				}
+				got := buf.Bytes()
+				if !bytes.Equal(got, tt.want) {
+					t.Errorf("WriteLittleUint64() got = %v, want %v", got, tt.want)
 				}
 			})
 		}

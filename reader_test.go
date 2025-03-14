@@ -3,6 +3,7 @@ package endianio
 import (
 	"bytes"
 	"encoding/binary"
+	"math"
 	"testing"
 )
 
@@ -91,6 +92,66 @@ func TestReader_ReadLittle(t *testing.T) {
 				}
 				if got != tt.want {
 					t.Errorf("ReadLittleUint64() got = %v, want %v", got, tt.want)
+				}
+			})
+		}
+	})
+	t.Run("ReadLittleFloat32", func(t *testing.T) {
+		var tests = []struct {
+			name string
+			data []byte
+			want float32
+		}{
+			{"float32_1", []byte{0x00, 0x00, 0x00, 0x00}, 0.0},
+			{"float32_2", []byte{0xcd, 0xcc, 0xcc, 0x3d}, 0.1},
+			{"float32_3", []byte{0xcd, 0xcc, 0xcc, 0xbd}, -0.1},
+			{"float32_4", []byte{0x00, 0x00, 0x80, 0xff}, float32(math.Inf(-1))},
+			{"float32_5", []byte{0x00, 0x00, 0xc0, 0x7f}, float32(math.NaN())},
+		}
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				r := NewReader(bytes.NewReader(tt.data))
+
+				got, err := r.ReadLittleFloat32()
+				if err != nil {
+					t.Errorf("ReadLittleFloat32() error = %v", err)
+					return
+				}
+
+				if got != tt.want {
+					if math.IsNaN(float64(tt.want)) && !math.IsNaN(float64(got)) {
+						t.Errorf("ReadLittleFloat32() got = %v, want %v", got, tt.want)
+					}
+				}
+			})
+		}
+	})
+	// Test WriteBigUint64
+	t.Run("ReadLittleFloat64", func(t *testing.T) {
+		var tests = []struct {
+			name string
+			data []byte
+			want float64
+		}{
+			{"float64_1", []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 0.0},
+			{"float64_2", []byte{0x9a, 0x99, 0x99, 0x99, 0x99, 0x99, 0xb9, 0x3f}, 0.1},
+			{"float64_3", []byte{0x9a, 0x99, 0x99, 0x99, 0x99, 0x99, 0xb9, 0xbf}, -0.1},
+			{"float64_4", []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0, 0xff}, math.Inf(-1)},
+			{"float64_5", []byte{0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf8, 0x7f}, math.NaN()},
+		}
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				r := NewReader(bytes.NewReader(tt.data))
+
+				got, err := r.ReadLittleFloat64()
+				if err != nil {
+					t.Errorf("ReadLittleFloat64() error = %v", err)
+					return
+				}
+				if got != tt.want {
+					if math.IsNaN(float64(tt.want)) && !math.IsNaN(float64(got)) {
+						t.Errorf("ReadLittleFloat64() got = %v, want %v", got, tt.want)
+					}
 				}
 			})
 		}
@@ -258,6 +319,66 @@ func TestReader_ReadBig(t *testing.T) {
 				}
 				if got != tt.want {
 					t.Errorf("ReadUint8() got = %v, want %v", got, tt.want)
+				}
+			})
+		}
+	})
+	t.Run("ReadBigFloat32", func(t *testing.T) {
+		var tests = []struct {
+			name string
+			data []byte
+			want float32
+		}{
+			{"float32_1", []byte{0x00, 0x00, 0x00, 0x00}, 0.0},
+			{"float32_2", []byte{0x3d, 0xcc, 0xcc, 0xcd}, 0.1},
+			{"float32_3", []byte{0xbd, 0xcc, 0xcc, 0xcd}, -0.1},
+			{"float32_4", []byte{0xff, 0x80, 0x00, 0x00}, float32(math.Inf(-1))},
+			{"float32_5", []byte{0x7f, 0xc0, 0x00, 0x00}, float32(math.NaN())},
+		}
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				r := NewReader(bytes.NewReader(tt.data))
+
+				got, err := r.ReadBigFloat32()
+				if err != nil {
+					t.Errorf("ReadBigFloat32() error = %v", err)
+					return
+				}
+
+				if got != tt.want {
+					if math.IsNaN(float64(tt.want)) && !math.IsNaN(float64(got)) {
+						t.Errorf("ReadBigFloat32() got = %v, want %v", got, tt.want)
+					}
+				}
+			})
+		}
+	})
+	// Test WriteBigUint64
+	t.Run("ReadBigFloat64", func(t *testing.T) {
+		var tests = []struct {
+			name string
+			data []byte
+			want float64
+		}{
+			{"float64_1", []byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 0.0},
+			{"float64_2", []byte{0x3f, 0xb9, 0x99, 0x99, 0x99, 0x99, 0x99, 0x9a}, 0.1},
+			{"float64_3", []byte{0xbf, 0xb9, 0x99, 0x99, 0x99, 0x99, 0x99, 0x9a}, -0.1},
+			{"float64_4", []byte{0xff, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, math.Inf(-1)},
+			{"float64_5", []byte{0x7f, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01}, math.NaN()},
+		}
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				r := NewReader(bytes.NewReader(tt.data))
+
+				got, err := r.ReadBigFloat64()
+				if err != nil {
+					t.Errorf("ReadBigFloat64() error = %v", err)
+					return
+				}
+				if got != tt.want {
+					if math.IsNaN(tt.want) && !math.IsNaN(got) {
+						t.Errorf("ReadBigFloat64() got = %v, want %v", got, tt.want)
+					}
 				}
 			})
 		}
