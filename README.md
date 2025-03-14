@@ -86,13 +86,13 @@ func main() {
     writer := endianio.NewWriter(buf)
 
     // Write a 16-bit unsigned integer in big-endian format
-    err := writer.WriteBigUint16(0x1234)
+    _,err := writer.WriteBigUint16(0x1234)
     if err != nil {
         panic(err)
     }
 
     // Write a 32-bit unsigned integer in big-endian format
-    err = writer.WriteBigUint32(0x56789ABC)
+    _,err = writer.WriteBigUint32(0x56789ABC)
     if err != nil {
         panic(err)
     }
@@ -106,7 +106,7 @@ func main() {
     leWriter := endianio.NewWriter(leBuf)
 
     // Write a 16-bit unsigned integer in little-endian format
-    err = leWriter.WriteLittleUint16(0x1234)
+    _,err = leWriter.WriteLittleUint16(0x1234)
     if err != nil {
         panic(err)
     }
@@ -131,14 +131,16 @@ func main() {
 
 ### Writer Methods
 
-- `WriteUint8(v uint8) error` - Write a single byte
-- `WriteBigUint16(v uint16) error` - Write a 16-bit unsigned integer in big-endian format
-- `WriteBigUint32(v uint32) error` - Write a 32-bit unsigned integer in big-endian format
-- `WriteBigUint64(v uint64) error` - Write a 64-bit unsigned integer in big-endian format
-- `WriteLittleUint16(v uint16) error` - Write a 16-bit unsigned integer in little-endian format
-- `WriteLittleUint32(v uint32) error` - Write a 32-bit unsigned integer in little-endian format
-- `WriteLittleUint64(v uint64) error` - Write a 64-bit unsigned integer in little-endian format
+- `WriteUint8(v uint8) (n int, err error)` - Write a single byte
+- `WriteBigUint16(v uint16) (n int, err error)` - Write a 16-bit unsigned integer in big-endian format
+- `WriteBigUint32(v uint32) (n int, err error)` - Write a 32-bit unsigned integer in big-endian format
+- `WriteBigUint64(v uint64) (n int, err error)` - Write a 64-bit unsigned integer in big-endian format
+- `WriteLittleUint16(v uint16) (n int, err error)` - Write a 16-bit unsigned integer in little-endian format
+- `WriteLittleUint32(v uint32) (n int, err error)` - Write a 32-bit unsigned integer in little-endian format
+- `WriteLittleUint64(v uint64) (n int, err error)` - Write a 64-bit unsigned integer in little-endian format
 
 ## License
+
+MIT License
 
 See the [LICENSE](LICENSE) file for details.

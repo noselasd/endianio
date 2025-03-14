@@ -27,7 +27,7 @@ func BenchmarkWriteBigUint16(b *testing.B) {
 	for b.Loop() {
 		buf.Reset()
 
-		err := w.WriteBigUint16(bigEndianUint16Value)
+		_, err := w.WriteBigUint16(bigEndianUint16Value)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -41,7 +41,7 @@ func BenchmarkWriteBigUint32(b *testing.B) {
 	for b.Loop() {
 		buf.Reset()
 
-		err := w.WriteBigUint32(bigEndianUint32Value)
+		_, err := w.WriteBigUint32(bigEndianUint32Value)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -55,7 +55,7 @@ func BenchmarkWriteBigUint64(b *testing.B) {
 	for b.Loop() {
 		buf.Reset()
 
-		err := w.WriteBigUint64(bigEndianUint64Value)
+		_, err := w.WriteBigUint64(bigEndianUint64Value)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -69,7 +69,7 @@ func BenchmarkWriteLittleUint16(b *testing.B) {
 	for b.Loop() {
 		buf.Reset()
 
-		err := w.WriteLittleUint16(littleEndianUint16Value)
+		_, err := w.WriteLittleUint16(littleEndianUint16Value)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -83,7 +83,7 @@ func BenchmarkWriteLittleUint32(b *testing.B) {
 	for b.Loop() {
 		buf.Reset()
 
-		err := w.WriteLittleUint32(littleEndianUint32Value)
+		_, err := w.WriteLittleUint32(littleEndianUint32Value)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -97,7 +97,7 @@ func BenchmarkWriteLittleUint64(b *testing.B) {
 	for b.Loop() {
 		buf.Reset()
 
-		err := w.WriteLittleUint64(littleEndianUint64Value)
+		_, err := w.WriteLittleUint64(littleEndianUint64Value)
 		if err != nil {
 			b.Fatal(err)
 		}
