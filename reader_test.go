@@ -3,13 +3,19 @@ package endianio
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"math"
 	"testing"
 )
 
-func TestReader_ReadLittle(t *testing.T) {
-	// Test ReadLittleUint16
-	t.Run("ReadLittleUint16", func(t *testing.T) {
+type failingReader struct{}
+
+func (fr *failingReader) Read(p []byte) (n int, err error) {
+	return 0, fmt.Errorf("read failed")
+}
+func TestLittleEndianReader(t *testing.T) {
+	// Test ReadUint16
+	t.Run("ReadUint16", func(t *testing.T) {
 		var tests = []struct {
 			name string
 			data []byte
@@ -24,21 +30,21 @@ func TestReader_ReadLittle(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				r := NewReader(bytes.NewReader(tt.data))
-				got, err := r.ReadLittleUint16()
+				r := NewLittleEndianReader(bytes.NewReader(tt.data))
+				got, err := r.ReadUint16()
 				if err != nil {
-					t.Errorf("ReadLittleUint16() error = %v", err)
+					t.Errorf("ReadUint16() error = %v", err)
 					return
 				}
 				if got != tt.want {
-					t.Errorf("ReadLittleUint16() got = %v, want %v", got, tt.want)
+					t.Errorf("ReadUint16() got = %v, want %v", got, tt.want)
 				}
 			})
 		}
 	})
 
-	// Test ReadLittleUint32
-	t.Run("ReadLittleUint32", func(t *testing.T) {
+	// Test ReadUint32
+	t.Run("ReadUint32", func(t *testing.T) {
 		var tests = []struct {
 			name string
 			data []byte
@@ -54,21 +60,21 @@ func TestReader_ReadLittle(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				r := NewReader(bytes.NewReader(tt.data))
-				got, err := r.ReadLittleUint32()
+				r := NewLittleEndianReader(bytes.NewReader(tt.data))
+				got, err := r.ReadUint32()
 				if err != nil {
-					t.Errorf("ReadLittleUint32() error = %v", err)
+					t.Errorf("ReadUint32() error = %v", err)
 					return
 				}
 				if got != tt.want {
-					t.Errorf("ReadLittleUint32() got = %v, want %v", got, tt.want)
+					t.Errorf("ReadUint32() got = %v, want %v", got, tt.want)
 				}
 			})
 		}
 	})
 
-	// Test ReadLittleUint64
-	t.Run("ReadLittleUint64", func(t *testing.T) {
+	// Test ReadUint64
+	t.Run("ReadUint64", func(t *testing.T) {
 		var tests = []struct {
 			name string
 			data []byte
@@ -84,19 +90,19 @@ func TestReader_ReadLittle(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				r := NewReader(bytes.NewReader(tt.data))
-				got, err := r.ReadLittleUint64()
+				r := NewLittleEndianReader(bytes.NewReader(tt.data))
+				got, err := r.ReadUint64()
 				if err != nil {
-					t.Errorf("ReadLittleUint64() error = %v", err)
+					t.Errorf("ReadUint64() error = %v", err)
 					return
 				}
 				if got != tt.want {
-					t.Errorf("ReadLittleUint64() got = %v, want %v", got, tt.want)
+					t.Errorf("ReadUint64() got = %v, want %v", got, tt.want)
 				}
 			})
 		}
 	})
-	t.Run("ReadLittleFloat32", func(t *testing.T) {
+	t.Run("ReadFloat32", func(t *testing.T) {
 		var tests = []struct {
 			name string
 			data []byte
@@ -110,24 +116,24 @@ func TestReader_ReadLittle(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				r := NewReader(bytes.NewReader(tt.data))
+				r := NewLittleEndianReader(bytes.NewReader(tt.data))
 
-				got, err := r.ReadLittleFloat32()
+				got, err := r.ReadFloat32()
 				if err != nil {
-					t.Errorf("ReadLittleFloat32() error = %v", err)
+					t.Errorf("ReadFloat32() error = %v", err)
 					return
 				}
 
 				if got != tt.want {
 					if math.IsNaN(float64(tt.want)) && !math.IsNaN(float64(got)) {
-						t.Errorf("ReadLittleFloat32() got = %v, want %v", got, tt.want)
+						t.Errorf("ReadFloat32() got = %v, want %v", got, tt.want)
 					}
 				}
 			})
 		}
 	})
-	// Test WriteBigUint64
-	t.Run("ReadLittleFloat64", func(t *testing.T) {
+	// Test ReadFloat64
+	t.Run("ReadFloat64", func(t *testing.T) {
 		var tests = []struct {
 			name string
 			data []byte
@@ -141,73 +147,51 @@ func TestReader_ReadLittle(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				r := NewReader(bytes.NewReader(tt.data))
+				r := NewLittleEndianReader(bytes.NewReader(tt.data))
 
-				got, err := r.ReadLittleFloat64()
+				got, err := r.ReadFloat64()
 				if err != nil {
-					t.Errorf("ReadLittleFloat64() error = %v", err)
+					t.Errorf("ReadFloat64() error = %v", err)
 					return
 				}
 				if got != tt.want {
 					if math.IsNaN(float64(tt.want)) && !math.IsNaN(float64(got)) {
-						t.Errorf("ReadLittleFloat64() got = %v, want %v", got, tt.want)
+						t.Errorf("ReadFloat64() got = %v, want %v", got, tt.want)
 					}
 				}
 			})
 		}
 	})
+	// Test reading from a failing reader
+	t.Run("FailingReader", func(t *testing.T) {
+		failReader := &failingReader{}
+		r := NewLittleEndianReader(failReader)
 
-	// Test error cases
-	t.Run("ErrorCases", func(t *testing.T) {
-		// Test reading with insufficient data
-		t.Run("InsufficientData", func(t *testing.T) {
-			// For uint16 (need 2 bytes)
-			r := NewReader(bytes.NewReader([]byte{0x12}))
-			_, err := r.ReadLittleUint16()
-			if err == nil {
-				t.Errorf("ReadLittleUint16() expected error for insufficient data")
-			}
+		_, err := r.ReadUint8()
+		if err == nil {
+			t.Errorf("ReadUint8() expected error for failing reader")
+		}
 
-			// For uint32 (need 4 bytes)
-			r = NewReader(bytes.NewReader([]byte{0x12, 0x34, 0x56}))
-			_, err = r.ReadLittleUint32()
-			if err == nil {
-				t.Errorf("ReadLittleUint32() expected error for insufficient data")
-			}
+		_, err = r.ReadUint16()
+		if err == nil {
+			t.Errorf("ReadUint16() expected error for failing reader")
+		}
 
-			// For uint64 (need 8 bytes)
-			r = NewReader(bytes.NewReader([]byte{0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE}))
-			_, err = r.ReadLittleUint64()
-			if err == nil {
-				t.Errorf("ReadLittleUint64() expected error for insufficient data")
-			}
-		})
+		_, err = r.ReadUint32()
+		if err == nil {
+			t.Errorf("ReadUint32() expected error for failing reader")
+		}
 
-		// Test reading from empty reader
-		t.Run("EmptyReader", func(t *testing.T) {
-			r := NewReader(bytes.NewReader([]byte{}))
-
-			_, err := r.ReadLittleUint16()
-			if err == nil {
-				t.Errorf("ReadLittleUint16() expected error for empty reader")
-			}
-
-			_, err = r.ReadLittleUint32()
-			if err == nil {
-				t.Errorf("ReadLittleUint32() expected error for empty reader")
-			}
-
-			_, err = r.ReadLittleUint64()
-			if err == nil {
-				t.Errorf("ReadLittleUint64() expected error for empty reader")
-			}
-		})
+		_, err = r.ReadUint64()
+		if err == nil {
+			t.Errorf("ReadUint64() expected error for failing reader")
+		}
 	})
 }
 
-func TestReader_ReadBig(t *testing.T) {
-	// Test ReadBigUint16
-	t.Run("ReadBigUint16", func(t *testing.T) {
+func TestBigEndianReader(t *testing.T) {
+	// Test ReadUint16
+	t.Run("ReadUint16", func(t *testing.T) {
 		var tests = []struct {
 			name string
 			data []byte
@@ -222,21 +206,21 @@ func TestReader_ReadBig(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				r := NewReader(bytes.NewReader(tt.data))
-				got, err := r.ReadBigUint16()
+				r := NewBigEndianReader(bytes.NewReader(tt.data))
+				got, err := r.ReadUint16()
 				if err != nil {
-					t.Errorf("ReadBigUint16() error = %v", err)
+					t.Errorf("ReadUint16() error = %v", err)
 					return
 				}
 				if got != tt.want {
-					t.Errorf("ReadBigUint16() got = %v, want %v", got, tt.want)
+					t.Errorf("ReadUint16() got = %v, want %v", got, tt.want)
 				}
 			})
 		}
 	})
 
-	// Test ReadBigUint32
-	t.Run("ReadBigUint32", func(t *testing.T) {
+	// Test ReadUint32
+	t.Run("ReadUint32", func(t *testing.T) {
 		var tests = []struct {
 			name string
 			data []byte
@@ -252,21 +236,21 @@ func TestReader_ReadBig(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				r := NewReader(bytes.NewReader(tt.data))
-				got, err := r.ReadBigUint32()
+				r := NewBigEndianReader(bytes.NewReader(tt.data))
+				got, err := r.ReadUint32()
 				if err != nil {
-					t.Errorf("ReadBigUint32() error = %v", err)
+					t.Errorf("ReadUint32() error = %v", err)
 					return
 				}
 				if got != tt.want {
-					t.Errorf("ReadBigUint32() got = %v, want %v", got, tt.want)
+					t.Errorf("ReadUint32() got = %v, want %v", got, tt.want)
 				}
 			})
 		}
 	})
 
-	// Test ReadBigUint64
-	t.Run("ReadBigUint64", func(t *testing.T) {
+	// Test ReadUint64
+	t.Run("ReadUint64", func(t *testing.T) {
 		var tests = []struct {
 			name string
 			data []byte
@@ -282,14 +266,14 @@ func TestReader_ReadBig(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				r := NewReader(bytes.NewReader(tt.data))
-				got, err := r.ReadBigUint64()
+				r := NewBigEndianReader(bytes.NewReader(tt.data))
+				got, err := r.ReadUint64()
 				if err != nil {
-					t.Errorf("ReadBigUint64() error = %v", err)
+					t.Errorf("ReadUint64() error = %v", err)
 					return
 				}
 				if got != tt.want {
-					t.Errorf("ReadBigUint64() got = %v, want %v", got, tt.want)
+					t.Errorf("ReadUint64() got = %v, want %v", got, tt.want)
 				}
 			})
 		}
@@ -311,7 +295,7 @@ func TestReader_ReadBig(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				r := NewReader(bytes.NewReader(tt.data))
+				r := NewBigEndianReader(bytes.NewReader(tt.data))
 				got, err := r.ReadUint8()
 				if err != nil {
 					t.Errorf("ReadUint8() error = %v", err)
@@ -323,7 +307,7 @@ func TestReader_ReadBig(t *testing.T) {
 			})
 		}
 	})
-	t.Run("ReadBigFloat32", func(t *testing.T) {
+	t.Run("ReadFloat32", func(t *testing.T) {
 		var tests = []struct {
 			name string
 			data []byte
@@ -337,24 +321,24 @@ func TestReader_ReadBig(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				r := NewReader(bytes.NewReader(tt.data))
+				r := NewBigEndianReader(bytes.NewReader(tt.data))
 
-				got, err := r.ReadBigFloat32()
+				got, err := r.ReadFloat32()
 				if err != nil {
-					t.Errorf("ReadBigFloat32() error = %v", err)
+					t.Errorf("ReadFloat32() error = %v", err)
 					return
 				}
 
 				if got != tt.want {
 					if math.IsNaN(float64(tt.want)) && !math.IsNaN(float64(got)) {
-						t.Errorf("ReadBigFloat32() got = %v, want %v", got, tt.want)
+						t.Errorf("ReadFloat32() got = %v, want %v", got, tt.want)
 					}
 				}
 			})
 		}
 	})
-	// Test WriteBigUint64
-	t.Run("ReadBigFloat64", func(t *testing.T) {
+	// Test ReadFloat64
+	t.Run("ReadFloat64", func(t *testing.T) {
 		var tests = []struct {
 			name string
 			data []byte
@@ -368,72 +352,45 @@ func TestReader_ReadBig(t *testing.T) {
 		}
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				r := NewReader(bytes.NewReader(tt.data))
+				r := NewBigEndianReader(bytes.NewReader(tt.data))
 
-				got, err := r.ReadBigFloat64()
+				got, err := r.ReadFloat64()
 				if err != nil {
-					t.Errorf("ReadBigFloat64() error = %v", err)
+					t.Errorf("ReadFloat64() error = %v", err)
 					return
 				}
 				if got != tt.want {
 					if math.IsNaN(tt.want) && !math.IsNaN(got) {
-						t.Errorf("ReadBigFloat64() got = %v, want %v", got, tt.want)
+						t.Errorf("ReadFloat64() got = %v, want %v", got, tt.want)
 					}
 				}
 			})
 		}
 	})
+	// Test reading from a failing reader
+	t.Run("FailingReader", func(t *testing.T) {
+		failReader := &failingReader{}
+		r := NewBigEndianReader(failReader)
 
-	// Test error cases
-	t.Run("ErrorCases", func(t *testing.T) {
-		// Test reading with insufficient data
-		t.Run("InsufficientData", func(t *testing.T) {
-			// For uint16 (need 2 bytes)
-			r := NewReader(bytes.NewReader([]byte{0x12}))
-			_, err := r.ReadBigUint16()
-			if err == nil {
-				t.Errorf("ReadBigUint16() expected error for insufficient data")
-			}
+		_, err := r.ReadUint8()
+		if err == nil {
+			t.Errorf("ReadUint8() expected error for failing reader")
+		}
 
-			// For uint32 (need 4 bytes)
-			r = NewReader(bytes.NewReader([]byte{0x12, 0x34, 0x56}))
-			_, err = r.ReadBigUint32()
-			if err == nil {
-				t.Errorf("ReadBigUint32() expected error for insufficient data")
-			}
+		_, err = r.ReadUint16()
+		if err == nil {
+			t.Errorf("ReadUint16() expected error for failing reader")
+		}
 
-			// For uint64 (need 8 bytes)
-			r = NewReader(bytes.NewReader([]byte{0x12, 0x34, 0x56, 0x78, 0x9A, 0xBC, 0xDE}))
-			_, err = r.ReadBigUint64()
-			if err == nil {
-				t.Errorf("ReadBigUint64() expected error for insufficient data")
-			}
-		})
+		_, err = r.ReadUint32()
+		if err == nil {
+			t.Errorf("ReadUint32() expected error for failing reader")
+		}
 
-		// Test reading from empty reader
-		t.Run("EmptyReader", func(t *testing.T) {
-			r := NewReader(bytes.NewReader([]byte{}))
-
-			_, err := r.ReadUint8()
-			if err == nil {
-				t.Errorf("ReadUint8() expected error for empty reader")
-			}
-
-			_, err = r.ReadBigUint16()
-			if err == nil {
-				t.Errorf("ReadBigUint16() expected error for empty reader")
-			}
-
-			_, err = r.ReadBigUint32()
-			if err == nil {
-				t.Errorf("ReadBigUint32() expected error for empty reader")
-			}
-
-			_, err = r.ReadBigUint64()
-			if err == nil {
-				t.Errorf("ReadBigUint64() expected error for empty reader")
-			}
-		})
+		_, err = r.ReadUint64()
+		if err == nil {
+			t.Errorf("ReadUint64() expected error for failing reader")
+		}
 	})
 }
 
@@ -450,95 +407,91 @@ var (
 	littleEndianUint64Data = []byte{0xF0, 0xDE, 0xBC, 0x9A, 0x78, 0x56, 0x34, 0x12} // 0x123456789ABCDEF0
 )
 
-func BenchmarkReadBigUint16(b *testing.B) {
-	// Create a bytes reader outside the loop
+func BenchmarkBigEndianReader_ReadUint16(b *testing.B) {
 	br := bytes.NewReader(bigEndianUint16Data)
-	r := NewReader(br)
+	r := NewBigEndianReader(br)
 
 	for b.Loop() {
 		br.Reset(bigEndianUint16Data)
 
-		_, err := r.ReadBigUint16()
+		_, err := r.ReadUint16()
 		if err != nil {
 			b.Fatal(err)
 		}
 	}
 }
 
-func BenchmarkReadBigUint32(b *testing.B) {
+func BenchmarkBigEndianReader_ReadUint32(b *testing.B) {
 	br := bytes.NewReader(bigEndianUint32Data)
-	r := NewReader(br)
+	r := NewBigEndianReader(br)
 
 	for b.Loop() {
 		br.Reset(bigEndianUint32Data)
 
-		_, err := r.ReadBigUint32()
+		_, err := r.ReadUint32()
 		if err != nil {
 			b.Fatal(err)
 		}
 	}
 }
 
-func BenchmarkReadBigUint64(b *testing.B) {
+func BenchmarkBigEndianReader_ReadUint64(b *testing.B) {
 	br := bytes.NewReader(bigEndianUint64Data)
-	r := NewReader(br)
+	r := NewBigEndianReader(br)
 
 	for b.Loop() {
 		br.Reset(bigEndianUint64Data)
 
-		_, err := r.ReadBigUint64()
+		_, err := r.ReadUint64()
 		if err != nil {
 			b.Fatal(err)
 		}
 	}
 }
 
-func BenchmarkReadLittleUint16(b *testing.B) {
-	// Create a bytes reader outside the loop
+func BenchmarkLittleEndianReader_ReadUint16(b *testing.B) {
 	br := bytes.NewReader(littleEndianUint16Data)
-	r := NewReader(br)
+	r := NewLittleEndianReader(br)
 
 	for b.Loop() {
 		br.Reset(littleEndianUint16Data)
 
-		_, err := r.ReadLittleUint16()
+		_, err := r.ReadUint16()
 		if err != nil {
 			b.Fatal(err)
 		}
 	}
 }
 
-func BenchmarkReadLittleUint32(b *testing.B) {
-	// Create a bytes reader outside the loop
+func BenchmarkLittleEndianReader_ReadUint32(b *testing.B) {
 	br := bytes.NewReader(littleEndianUint32Data)
-	r := NewReader(br)
+	r := NewLittleEndianReader(br)
 
 	for b.Loop() {
 		br.Reset(littleEndianUint32Data)
 
-		_, err := r.ReadLittleUint32()
+		_, err := r.ReadUint32()
 		if err != nil {
 			b.Fatal(err)
 		}
 	}
 }
 
-func BenchmarkReadLittleUint64(b *testing.B) {
-	// Create a bytes reader outside the loop
+func BenchmarkLittleEndianReader_ReadUint64(b *testing.B) {
 	br := bytes.NewReader(littleEndianUint64Data)
-	r := NewReader(br)
+	r := NewLittleEndianReader(br)
 
 	for b.Loop() {
 		br.Reset(littleEndianUint64Data)
 
-		_, err := r.ReadLittleUint64()
+		_, err := r.ReadUint64()
 		if err != nil {
 			b.Fatal(err)
 		}
 	}
 }
 
-func BenchmarkReadBigUint16Stdlib(b *testing.B) {
+func BenchmarkReadUint16Stdlib(b *testing.B) {
 	br := bytes.NewReader(bigEndianUint32Data)
 
 	for b.Loop() {
@@ -550,7 +503,8 @@ func BenchmarkReadBigUint16Stdlib(b *testing.B) {
 		}
 	}
 }
-func BenchmarkReadLittleUint32Stdlib(b *testing.B) {
+
+func BenchmarkReadUint32Stdlib(b *testing.B) {
 	br := bytes.NewReader(littleEndianUint32Data)
 
 	for b.Loop() {
@@ -562,7 +516,8 @@ func BenchmarkReadLittleUint32Stdlib(b *testing.B) {
 		}
 	}
 }
-func BenchmarkReadLittleUint64Stdlib(b *testing.B) {
+
+func BenchmarkReadUint64Stdlib(b *testing.B) {
 	// Create a bytes reader outside the loop
 	br := bytes.NewReader(littleEndianUint64Data)
 

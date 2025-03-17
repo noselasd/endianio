@@ -5,43 +5,75 @@ import (
 	"fmt"
 )
 
-// This example demonstrates how to use the Writer and Reader together
-func Example() {
-	// Create a buffer to write to
-	buf := &bytes.Buffer{}
+// This example demonstrates how to use the BigEndianReader and LittleEndianReader
+func Example_readers() {
+	// Create a buffer with some binary data
+	data := []byte{
+		// Big-endian values
+		0x12, 0x34, // uint16: 0x1234
+		0x56, 0x78, 0x9A, 0xBC, // uint32: 0x56789ABC
 
-	// Create a writer
-	writer := NewWriter(buf)
+		// Little-endian values
+		0x34, 0x12, // uint16: 0x1234
+		0xBC, 0x9A, 0x78, 0x56, // uint32: 0x56789ABC
+	}
 
-	// Write some values in different formats
-	writer.WriteUint8(0x12)
-	writer.WriteBigUint16(0x3456)
-	writer.WriteBigUint32(0x789ABCDE)
-	writer.WriteLittleUint16(0x1234)
-	writer.WriteLittleUint32(0x56789ABC)
+	// Create a reader for the data
+	r := bytes.NewReader(data)
 
-	// Now read the values back
-	// First, create a reader from the buffer
-	reader := NewReader(bytes.NewReader(buf.Bytes()))
+	// Create a big-endian reader
+	bigEndian := NewBigEndianReader(r)
 
-	// Read the values in the same order they were written
-	uint8Val, _ := reader.ReadUint8()
-	bigUint16Val, _ := reader.ReadBigUint16()
-	bigUint32Val, _ := reader.ReadBigUint32()
-	littleUint16Val, _ := reader.ReadLittleUint16()
-	littleUint32Val, _ := reader.ReadLittleUint32()
+	// Read big-endian values
+	beUint16, _ := bigEndian.ReadUint16()
+	beUint32, _ := bigEndian.ReadUint32()
+
+	// Reset the reader to the position for little-endian values
+	r.Reset(data)
+	r.Seek(6, 0) // Skip the first 6 bytes (big-endian values)
+
+	// Create a little-endian reader
+	littleEndian := NewLittleEndianReader(r)
+
+	// Read little-endian values
+	leUint16, _ := littleEndian.ReadUint16()
+	leUint32, _ := littleEndian.ReadUint32()
 
 	// Print the values
-	fmt.Printf("uint8: 0x%02X\n", uint8Val)
-	fmt.Printf("big uint16: 0x%04X\n", bigUint16Val)
-	fmt.Printf("big uint32: 0x%08X\n", bigUint32Val)
-	fmt.Printf("little uint16: 0x%04X\n", littleUint16Val)
-	fmt.Printf("little uint32: 0x%08X\n", littleUint32Val)
+	fmt.Printf("Big-endian uint16: 0x%04X\n", beUint16)
+	fmt.Printf("Big-endian uint32: 0x%08X\n", beUint32)
+	fmt.Printf("Little-endian uint16: 0x%04X\n", leUint16)
+	fmt.Printf("Little-endian uint32: 0x%08X\n", leUint32)
 
 	// Output:
-	// uint8: 0x12
-	// big uint16: 0x3456
-	// big uint32: 0x789ABCDE
-	// little uint16: 0x1234
-	// little uint32: 0x56789ABC
+	// Big-endian uint16: 0x1234
+	// Big-endian uint32: 0x56789ABC
+	// Little-endian uint16: 0x1234
+	// Little-endian uint32: 0x56789ABC
+}
+
+// This example demonstrates how to use the BigEndianWriter and LittleEndianWriter
+func Example_writers() {
+	// Create buffers to write to
+	bigEndianBuf := &bytes.Buffer{}
+	littleEndianBuf := &bytes.Buffer{}
+
+	// Create writers
+	bigEndian := NewBigEndianWriter(bigEndianBuf)
+	littleEndian := NewLittleEndianWriter(littleEndianBuf)
+
+	// Write values
+	bigEndian.WriteUint16(0x1234)
+	bigEndian.WriteUint32(0x56789ABC)
+
+	littleEndian.WriteUint16(0x1234)
+	littleEndian.WriteUint32(0x56789ABC)
+
+	// Print the written bytes
+	fmt.Printf("Big-endian bytes: % X\n", bigEndianBuf.Bytes())
+	fmt.Printf("Little-endian bytes: % X\n", littleEndianBuf.Bytes())
+
+	// Output:
+	// Big-endian bytes: 12 34 56 78 9A BC
+	// Little-endian bytes: 34 12 BC 9A 78 56
 }
